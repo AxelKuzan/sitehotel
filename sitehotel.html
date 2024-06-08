@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation Hôtel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BOOKING HOTEL</h1>
+            <p>Indiquez vos dates de réservation - Toute annulation doit se faire 48h avant</p>
+        </div>
+        <div class="content">
+            <div class="form-section">
+                <div class="form">
+                    <h2>France - Etranger</h2>
+                    <label for="lieu">Lieu de séjour</label>
+                    <input type="text" id="lieu" name="lieu">
+
+                    <label for="arrivee">Arrivée</label>
+                    <input type="date" id="arrivee" name="arrivee">
+
+                    <label for="depart">Départ</label>
+                    <input type="date" id="depart" name="depart">
+
+                    <label>Adulte</label>
+                    <div class="counter">
+                        <button onclick="changeCount('adult', -1)">-</button>
+                        <span id="adult-count">0</span>
+                        <button onclick="changeCount('adult', 1)">+</button>
+                    </div>
+
+                    <label>Enfant</label>
+                    <div class="counter">
+                        <button onclick="changeCount('child', -1)">-</button>
+                        <span id="child-count">0</span>
+                        <button onclick="changeCount('child', 1)">+</button>
+                    </div>
+                    <div id="child-ages"></div>
+
+                    <label>Chambre</label>
+                    <div class="counter">
+                        <button onclick="changeCount('room', -1)">-</button>
+                        <span id="room-count">0</span>
+                        <button onclick="changeCount('room', 1)">+</button>
+                    </div>
+
+                    <div class="work-checkbox">
+                        <input type="checkbox" id="work" name="work">
+                        <label for="work">Je voyage pour le travail</label>
+                    </div>
+
+                    <button onclick="rechercher()">Rechercher</button>
+                    <button onclick="effacer()">Effacer</button>
+                </div>
+            </div>
+            <div class="confirmation-section">
+                <h2>Confirmation réservation</h2>
+                <p>Nombre(s) d'adulte(s) : <span id="confirm-adult">0</span></p>
+                <p>Nombre(s) d'enfant(s) : <span id="confirm-child">0</span></p>
+                <p>Âge des enfants : <span id="confirm-ages">N/A</span></p>
+                <p>Nombre(s) de chambre(s) : <span id="confirm-room">0</span></p>
+                <p>Voyage pour le travail : <span id="confirm-work">Non</span></p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Indiquez vos dates de réservation - Toute annulation doit se faire avant 48h</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<style>
+   body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url("../hotel/fond.jpg");
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.form-section, .confirmation-section {
+    width: 45%;
+}
+
+.form-section h2, .confirmation-section h2 {
+    color: #333;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form label {
+    margin: 10px 0 5px;
+}
+
+.form input[type="text"], .form input[type="date"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+}
+
+.counter button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    background: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.counter span {
+    min-width: 30px;
+    text-align: center;
+}
+
+.work-checkbox {
+    margin: 10px 0;
+}
+
+button {
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.confirmation-section p {
+    margin: 10px 0;
+}
+
+.footer {
+    background: #f44336;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+
+</style>
+<script>
+ let adultCount = 0;
+let childCount = 0;
+let roomCount = 0;
+let childAges = [];
+
+function changeCount(type, delta) {
+    if (type === 'adult') {
+        adultCount = Math.max(0, adultCount + delta);
+        document.getElementById('adult-count').textContent = adultCount;
+    } else if (type === 'child') {
+        childCount = Math.max(0, childCount + delta);
+        document.getElementById('child-count').textContent = childCount;
+        updateChildAges();
+    } else if (type === 'room') {
+        roomCount = Math.max(0, roomCount + delta);
+        document.getElementById('room-count').textContent = roomCount;
+    }
+}
+
+function updateChildAges() {
+    const childAgesDiv = document.getElementById('child-ages');
+    childAgesDiv.innerHTML = '';
+    childAges = [];
+
+    for (let i = 0; i < childCount; i++) {
+        const ageInput = document.createElement('input');
+        ageInput.type = 'number';
+        ageInput.min = '0';
+        ageInput.max = '17';
+        ageInput.placeholder = `Âge de l'enfant ${i + 1}`;
+        ageInput.onchange = function() { updateChildAge(i, ageInput.value); };
+        childAgesDiv.appendChild(ageInput);
+        childAges.push(0);
+    }
+}
+
+function updateChildAge(index, age) {
+    childAges[index] = age;
+}
+
+function rechercher() {
+    const arrivee = document.getElementById('arrivee').value;
+    const depart = document.getElementById('depart').value;
+
+    if (arrivee && depart && new Date(arrivee) >= new Date(depart)) {
+        alert('La date d\'arrivée doit être inférieure à la date de départ');
+        return;
+    }
+
+    document.getElementById('confirm-adult').textContent = adultCount;
+    document.getElementById('confirm-child').textContent = childCount;
+    document.getElementById('confirm-ages').textContent = childAges.join(', ') || 'N/A';
+    document.getElementById('confirm-room').textContent = roomCount;
+    document.getElementById('confirm-work').textContent = document.getElementById('work').checked ? 'Oui' : 'Non';
+}
+
+function effacer() {
+    adultCount = 0;
+    childCount = 0;
+    roomCount = 0;
+    childAges = [];
+    document.getElementById('adult-count').textContent = adultCount;
+    document.getElementById('child-count').textContent = childCount;
+    document.getElementById('room-count').textContent = roomCount;
+    document.getElementById('confirm-adult').textContent = adultCount;
+    document.getElementById('confirm-child').textContent = childCount;
+    document.getElementById('confirm-ages').textContent = 'N/A';
+    document.getElementById('confirm-room').textContent = roomCount;
+    document.getElementById('confirm-work').textContent = 'Non';
+    document.getElementById('lieu').value = '';
+    document.getElementById('arrivee').value = '';
+    document.getElementById('depart').value = '';
+    document.getElementById('work').checked = false;
+    document.getElementById('child-ages').innerHTML = '';
+}
+</script>
